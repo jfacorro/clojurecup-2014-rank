@@ -30,10 +30,13 @@
   (let [ratings (:ratings team)
         f       (fn [{:keys [utility design completeness innovation]}]
                   (/ (reduce + [utility design completeness innovation]) 4))
-        global-rating (->> ratings (map f) (reduce +))]
-    (assoc team :global-rating 
-      (if (pos? (count ratings))
-        (float (/ global-rating (count ratings)))
+        global-rating (->> ratings (map f) (reduce +))
+        rating-count (count ratings)]
+    (assoc team 
+      :rating-count rating-count
+      :global-rating
+      (if (pos? rating-count)
+        (float (/ global-rating rating-count))
         0))))
 
 (defn -main
@@ -43,17 +46,28 @@
                         (map team-details)
                         (map total-rating)
                         doall)]
-    (println "===== Public Favorite Ranking =====")
+    (println "# Public Favorite Ranking")
+    (println)
+    (println "| Team | Votes |")
+    (println "|------|-------|")
     (doseq [team-detail (->> teams-details 
                           (sort-by :faver-count)
                           reverse)]
-      (println
-        (:team/app-name team-detail)
-        (:faver-count team-detail)))
-    (println "===== Judges Ranking =====")
+      (println "|" (:team/app-name team-detail)
+               "|" (:faver-count team-detail)
+               "|"))
+    (println "# Judges Ranking")
+    (println)
+    (println "| Team | Rating Count | Ratings Avg. |")
+    (println "|------|--------------|--------------|")
     (doseq [team-detail (->> teams-details
                           (sort-by :global-rating)
                           reverse)]
-      (println
-        (:team/app-name team-detail)
-        (:global-rating team-detail)))))
+      (println "|" (:team/app-name team-detail)
+               "|" (:rating-count team-detail)
+               "|" (:global-rating team-detail)
+               "|"))))
+
+
+
+
