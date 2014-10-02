@@ -41,32 +41,38 @@
 
 (defn -main
   []
-  (let [teams (transit->json teams)
+  (let [n     (atom 1)
+        teams (transit->json teams)
         teams-details (->> teams
                         (map team-details)
                         (map total-rating)
                         doall)]
     (println "# Public Favorite Ranking")
     (println)
-    (println "| Team | Votes |")
-    (println "|------|-------|")
+    (println "| # | Team | Votes |")
+    (println "|---|------|-------|")
     (doseq [team-detail (->> teams-details 
                           (sort-by :faver-count)
                           reverse)]
-      (println "|" (:team/app-name team-detail)
+      (println "|" @n
+               "|" (:team/app-name team-detail)
                "|" (:faver-count team-detail)
-               "|"))
+               "|")
+      (swap! n inc))
+    (reset! n 1)
     (println "# Judges Ranking")
     (println)
-    (println "| Team | Rating Count | Ratings Avg. |")
-    (println "|------|--------------|--------------|")
+    (println "| # | Team | Rating Count | Ratings Avg. |")
+    (println "|---|------|--------------|--------------|")
     (doseq [team-detail (->> teams-details
                           (sort-by :global-rating)
                           reverse)]
-      (println "|" (:team/app-name team-detail)
+      (println "|" @n
+               "|" (:team/app-name team-detail)
                "|" (:rating-count team-detail)
                "|" (:global-rating team-detail)
-               "|"))))
+               "|")
+      (swap! n inc))))
 
 
 
